@@ -105,15 +105,6 @@ public class AuthController {
         return loginservice.getAllUsersWithRole("GestionUser","psychiatre");
     }
 
-    @GetMapping("/roleA")
-    public List<UserRepresentation> getAssociations() {
-        return loginservice.getAllUsersWithRole("GestionUser","association");
-    }
-
-    @GetMapping("/roleC")
-    public List<UserRepresentation> getClients() {
-        return loginservice.getAllUsersWithRole("GestionUser","client");
-    }
 
     @GetMapping("/users")
     public List<UserRepresentation> getAllUsers() {

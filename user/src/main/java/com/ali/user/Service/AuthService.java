@@ -81,7 +81,7 @@ public class AuthService {
         user_rp.setFirstName(user.getFirstName());
         user_rp.setLastName(user.getLastName());
         user_rp.setEmail(user.getEmail());
-        user_rp.setEmailVerified(false); // Important !
+        user_rp.setEmailVerified(false);
         user_rp.setCredentials(Collections.singletonList(credential));
         user_rp.setEnabled(true);
 
@@ -216,26 +216,6 @@ public class AuthService {
     }
 
     public List<UserRepresentation> getAllUsersWithRole(String realmName, String roleName) {
-        Keycloak keycloak = KeycloakConfig.getKeycloakInstance();
-        UsersResource usersResource = keycloak.realm(realmName).users();
-        List<UserRepresentation> allUsers = usersResource.list();
-        List<UserRepresentation> usersWithRole = allUsers.stream()
-                .filter(user -> hasRole(user, roleName))
-                .collect(Collectors.toList());
-        return usersWithRole;
-    }
-
-    public List<UserRepresentation> getAssociations(String realmName, String roleName) {
-        Keycloak keycloak = KeycloakConfig.getKeycloakInstance();
-        UsersResource usersResource = keycloak.realm(realmName).users();
-        List<UserRepresentation> allUsers = usersResource.list();
-        List<UserRepresentation> usersWithRole = allUsers.stream()
-                .filter(user -> hasRole(user, roleName))
-                .collect(Collectors.toList());
-        return usersWithRole;
-    }
-
-    public List<UserRepresentation> getClients(String realmName, String roleName) {
         Keycloak keycloak = KeycloakConfig.getKeycloakInstance();
         UsersResource usersResource = keycloak.realm(realmName).users();
         List<UserRepresentation> allUsers = usersResource.list();
