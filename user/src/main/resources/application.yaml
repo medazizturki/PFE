@@ -1,0 +1,59 @@
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+spring:
+  application:
+    name: auth-service
+  security:
+    oauth2:
+      client:
+        registration:
+          ouath2-client-credentials:
+            provider: keycloak
+            client-id: GestionUser
+            client-secret: gOC4CjPF2b3KCjcdQYWR2wDVBQC8k94p
+            authorization-grant-type: client_credentials
+        provider:
+          keycloak:
+            issuer-uri: 'http://localhost:8080/realms/GestionUser'
+      resourceserver:
+        jwt:
+          issuer-uri: 'http://localhost:8080/realms/GestionUser/protocol/openid-connect/token'
+          jwk-set-uri: 'http://localhost:8080/realms/GestionUser/protocol/openid-connect/certs'
+  datasource:
+    url: jdbc:postgresql://postgres:5432/keycloak
+    username: postgres
+    password: postgres
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: localhost
+    port: 1025
+    username: aziz
+    password: aziz
+    properties:
+      mail:
+        smtp:
+          trust: "*"
+        auth: true
+        starttls:
+          enabled: true
+        connectiontimeout: 5000
+        timeout: 3000
+        writetimeout: 5000
+
+
+server:
+  port: 8081
+
+logging:
+  file:
+    path: C:/Users/HP/Desktop/Autisme/logs
