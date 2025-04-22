@@ -16,13 +16,14 @@ spring:
             provider: keycloak
             client-id: GestionUser
             client-secret: gOC4CjPF2b3KCjcdQYWR2wDVBQC8k94p
-            authorization-grant-type: client_credentials
+            authorization-grant-type: password
+            scope: openid, profile, email
         provider:
           keycloak:
             issuer-uri: 'http://localhost:8080/realms/GestionUser'
       resourceserver:
         jwt:
-          issuer-uri: 'http://localhost:8080/realms/GestionUser/protocol/openid-connect/token'
+          issuer-uri: 'http://localhost:8080/realms/GestionUser'
           jwk-set-uri: 'http://localhost:8080/realms/GestionUser/protocol/openid-connect/certs'
   datasource:
     url: jdbc:postgresql://postgres:5432/keycloak
@@ -49,7 +50,6 @@ spring:
         connectiontimeout: 5000
         timeout: 3000
         writetimeout: 5000
-
 
 server:
   port: 8081

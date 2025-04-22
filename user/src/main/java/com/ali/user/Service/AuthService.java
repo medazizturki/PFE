@@ -23,6 +23,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
@@ -45,26 +46,39 @@ public class AuthService {
     }
     @Value("${spring.security.oauth2.client.registration.ouath2-client-credentials.client-id}")
     private String clientId;
-    @Value("${spring.security.oauth2.client.registration.ouath2-client-credentials.authorization-grant-type}")
-    private String grantType;
     @Value("${spring.security.oauth2.client.registration.ouath2-client-credentials.client-secret}")
     private String clientSecret;
 
-    public ResponseEntity<LoginResponse> login(LoginRequest loginrequest) {
+    public ResponseEntity<LoginResponse> login(LoginRequest loginRequest) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "password"); // Ensure grant_type is password
         map.add("client_id", clientId);
-        map.add("client_secret",clientSecret);
-        map.add("grant_type", grantType);
-        map.add("username", loginrequest.getUsername());
-        map.add("password", loginrequest.getPassword());
+        map.add("client_secret", clientSecret);
+        map.add("username", loginRequest.getUsername());
+        map.add("password", loginRequest.getPassword());
 
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(map, headers);
-        LoginResponse response =  restTemplate.postForObject("http://localhost:8080/realms/GestionUser/protocol/openid-connect/token", httpEntity, LoginResponse.class);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 
+        try {
+            LoginResponse response = restTemplate.postForObject(
+                    "http://localhost:8080/realms/GestionUser/protocol/openid-connect/token",
+                    httpEntity,
+                    LoginResponse.class
+            );
+
+            if (response != null && response.getAccess_token() != null) {
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+        } catch (HttpClientErrorException e) {
+            System.err.println("Failed to authenticate: " + e.getResponseBodyAsString());
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
     public boolean logoutUser(String userId) {
         try {
             KeycloakConfig.getKeycloakInstance().realm("GestionUser").users().get(userId).logout();
@@ -76,16 +90,16 @@ public class AuthService {
     }
     public void signup(User user) {
         CredentialRepresentation credential = Credentials.createPasswordCredentials(user.getPassword());
-        UserRepresentation user_rp = new UserRepresentation();
-        user_rp.setUsername(user.getUserName());
-        user_rp.setFirstName(user.getFirstName());
-        user_rp.setLastName(user.getLastName());
-        user_rp.setEmail(user.getEmail());
-        user_rp.setEmailVerified(false);
-        user_rp.setCredentials(Collections.singletonList(credential));
-        user_rp.setEnabled(true);
+        UserRepresentation userRepresentation = new UserRepresentation();
+        userRepresentation.setUsername(user.getUserName());
+        userRepresentation.setFirstName(user.getFirstName());
+        userRepresentation.setLastName(user.getLastName());
+        userRepresentation.setEmail(user.getEmail());
+        userRepresentation.setEmailVerified(false);
+        userRepresentation.setCredentials(Collections.singletonList(credential));
+        userRepresentation.setEnabled(true);
 
-        // Ajout des attributs
+        // Add attributes
         Map<String, List<String>> attributes = new HashMap<>();
         attributes.put("image", Collections.singletonList(user.getImage()));
         attributes.put("adresse", Collections.singletonList(user.getAdresse()));
@@ -93,28 +107,27 @@ public class AuthService {
         attributes.put("phone", Collections.singletonList(String.valueOf(user.getPhone())));
         attributes.put("verified", Collections.singletonList(String.valueOf(user.getVerified())));
 
-        user_rp.setAttributes(attributes);
+        userRepresentation.setAttributes(attributes);
 
         UsersResource usersResource = KeycloakConfig.getUsersResource();
-        Response response = usersResource.create(user_rp);
+        Response response = usersResource.create(userRepresentation);
 
         if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
             System.out.println("User added successfully");
 
-            // Récupérer l'ID de l'utilisateur
+            // Get the user ID
             String userId = CreatedResponseUtil.getCreatedId(response);
             System.out.println("User ID: " + userId);
 
-            // 🔹 Envoyer l'email de vérification
+            // Send verification email
             sendVerificationEmail(userId);
         } else {
             System.out.println("Failed to add user. Status: " + response.getStatus());
-            String errorMessage = response.readEntity(String.class);
-            System.out.println("Error message: " + errorMessage);
         }
 
         response.close();
     }
+
     public void sendVerificationEmail(String userId) {
         UsersResource usersResource = KeycloakConfig.getUsersResource();
         try {
@@ -122,8 +135,10 @@ public class AuthService {
             System.out.println("Verification email sent successfully.");
         } catch (Exception e) {
             System.err.println("Failed to send verification email: " + e.getMessage());
+            e.printStackTrace();
         }
     }
+
     public boolean isEmailVerified(String username) {
         UsersResource usersResource = KeycloakConfig.getUsersResource();
         List<UserRepresentation> users = usersResource.search(username, true);

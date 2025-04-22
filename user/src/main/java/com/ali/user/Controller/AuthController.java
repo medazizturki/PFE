@@ -45,14 +45,15 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public String logoutUser(@RequestParam String userId) {
+    public ResponseEntity<String> logoutUser(@RequestParam String userId) {
         boolean result = loginservice.logoutUser(userId);
         if (result) {
-            return "User successfully logged out.";
+            return ResponseEntity.ok("User successfully logged out.");
         } else {
-            return "Failed to logout user.";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to logout user.");
         }
     }
+
 
     @PostMapping("/signup")
     public String signup(@RequestBody User user) {
