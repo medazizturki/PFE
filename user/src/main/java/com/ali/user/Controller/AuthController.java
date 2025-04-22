@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -200,5 +201,40 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
+    }
+
+
+    ////////// to check session
+    @GetMapping("/session/check/{userId}")
+    public ResponseEntity<Boolean> isUserLoggedIn(@PathVariable String userId) {
+        boolean isLoggedIn = loginservice.isUserLoggedIn(userId);
+        return ResponseEntity.ok(isLoggedIn);
+    }
+
+    @GetMapping("/token/validate")
+    public ResponseEntity<Boolean> validateToken(@RequestHeader("Authorization") String authHeader) {
+        // Extract token from Authorization header (remove "Bearer " prefix)
+        String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+        boolean isValid = loginservice.validateToken(token);
+        return ResponseEntity.ok(isValid);
+    }
+
+    @GetMapping("/user/info")
+    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String authHeader) {
+        // Extract token from Authorization header
+        String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+        Map<String, Object> userInfo = loginservice.getUserInfo(token);
+
+        if (userInfo != null) {
+            return ResponseEntity.ok(userInfo);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token or session expired");
+        }
+    }
+
+    @GetMapping("/session/check/username/{username}")
+    public ResponseEntity<Boolean> hasActiveSession(@PathVariable String username) {
+        boolean hasSession = loginservice.hasActiveSession(username);
+        return ResponseEntity.ok(hasSession);
     }
 }

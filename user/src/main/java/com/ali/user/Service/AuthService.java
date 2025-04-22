@@ -372,5 +372,84 @@ private boolean verifyCurrentPassword(UserResource userResource, String currentP
     }
 
 
+
+
+
+    ////////// to check session
+
+    public boolean isUserLoggedIn(String userId) {
+        try {
+            List<UserSessionRepresentation> sessions = getUserSessions("GestionUser", userId);
+            return !sessions.isEmpty();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(token);
+
+            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    "http://localhost:8080/realms/GestionUser/protocol/openid-connect/userinfo",
+                    HttpMethod.GET,
+                    requestEntity,
+                    Map.class
+            );
+
+            return response.getStatusCode().is2xxSuccessful();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Map<String, Object> getUserInfo(String token) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(token);
+
+            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    "http://localhost:8080/realms/GestionUser/protocol/openid-connect/userinfo",
+                    HttpMethod.GET,
+                    requestEntity,
+                    Map.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return response.getBody();
+            }
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean hasActiveSession(String username) {
+        try {
+            UsersResource usersResource = KeycloakConfig.getUsersResource();
+            List<UserRepresentation> users = usersResource.search(username, true);
+
+            if (users.isEmpty()) {
+                return false;
+            }
+
+            String userId = users.get(0).getId();
+            List<UserSessionRepresentation> sessions = getUserSessions("GestionUser", userId);
+
+            return !sessions.isEmpty();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 }
 
