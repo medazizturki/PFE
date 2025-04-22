@@ -25,15 +25,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
-
+////////////////
 @Service
 @PropertySource("classpath:application.yaml")
 public class AuthService {
@@ -88,6 +86,8 @@ public class AuthService {
             return false;
         }
     }
+
+    ///////////
     public void signup(User user) {
         CredentialRepresentation credential = Credentials.createPasswordCredentials(user.getPassword());
         UserRepresentation userRepresentation = new UserRepresentation();

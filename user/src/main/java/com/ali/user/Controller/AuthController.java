@@ -1,7 +1,6 @@
 package com.ali.user.Controller;
 
 import com.ali.user.Config.KeycloakConfig;
-import com.ali.user.Model.*;
 import com.ali.user.Model.LoginRequest;
 import com.ali.user.Model.LoginResponse;
 import com.ali.user.Model.PasswordUpdateRequest;
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 

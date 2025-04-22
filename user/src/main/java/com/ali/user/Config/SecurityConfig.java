@@ -1,5 +1,7 @@
 package com.ali.user.Config;
 
+
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -14,6 +16,8 @@ import org.springframework.security.web.authentication.session.NullAuthenticated
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+
+////////////
 @Configuration
 @EnableWebSecurity
 @PropertySource("classpath:application.yaml")

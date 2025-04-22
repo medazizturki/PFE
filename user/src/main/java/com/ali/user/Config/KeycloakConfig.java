@@ -1,13 +1,13 @@
 package com.ali.user.Config;
 
-import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
-import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+
 @Configuration
 public class KeycloakConfig {
 
@@ -34,6 +34,7 @@ public class KeycloakConfig {
         }
         return keycloak ;
     }
+
 
     @Bean
     public static UsersResource getUsersResource() {
