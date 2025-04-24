@@ -57,6 +57,7 @@ public class AuthService {
         map.add("client_secret", clientSecret);
         map.add("username", loginRequest.getUsername());
         map.add("password", loginRequest.getPassword());
+        map.add("scope", "openid email profile"); // Add openid scope here
 
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(map, headers);
 
@@ -387,6 +388,7 @@ private boolean verifyCurrentPassword(UserResource userResource, String currentP
         }
     }
 
+
     public boolean validateToken(String token) {
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -411,8 +413,11 @@ private boolean verifyCurrentPassword(UserResource userResource, String currentP
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(token);
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+            System.out.println("Making request to userinfo endpoint with token: " + token.substring(0, 20) + "...");
 
             ResponseEntity<Map> response = restTemplate.exchange(
                     "http://localhost:8080/realms/GestionUser/protocol/openid-connect/userinfo",
@@ -421,11 +426,14 @@ private boolean verifyCurrentPassword(UserResource userResource, String currentP
                     Map.class
             );
 
+            System.out.println("Response status: " + response.getStatusCode());
+
             if (response.getStatusCode().is2xxSuccessful()) {
                 return response.getBody();
             }
             return null;
         } catch (Exception e) {
+            System.err.println("Error calling userinfo endpoint: " + e.getMessage());
             e.printStackTrace();
             return null;
         }

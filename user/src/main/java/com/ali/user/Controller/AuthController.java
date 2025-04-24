@@ -100,6 +100,7 @@ public class AuthController {
     public UserRepresentation getUserById(@PathVariable String id) {
         return KeycloakConfig.getKeycloakInstance().realm("GestionUser").users().get(id).toRepresentation();
     }
+
     @GetMapping("/role")
     public List<UserRepresentation> getAllUsersWithRole() {
         return loginservice.getAllUsersWithRole("GestionUser","psychiatre");
@@ -220,7 +221,12 @@ public class AuthController {
     }
 
     @GetMapping("/user/info")
-    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getUserInfo(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        // Check if Authorization header exists
+        if (authHeader == null || authHeader.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header is missing");
+        }
+
         // Extract token from Authorization header
         String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
         Map<String, Object> userInfo = loginservice.getUserInfo(token);
