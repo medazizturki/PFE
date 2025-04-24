@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-////////////////
 @Service
 @PropertySource("classpath:application.yaml")
 public class AuthService {
@@ -78,6 +77,8 @@ public class AuthService {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
+
+
     public boolean logoutUser(String userId) {
         try {
             KeycloakConfig.getKeycloakInstance().realm("GestionUser").users().get(userId).logout();
@@ -88,7 +89,6 @@ public class AuthService {
         }
     }
 
-    ///////////
     public void signup(User user) {
         CredentialRepresentation credential = Credentials.createPasswordCredentials(user.getPassword());
         UserRepresentation userRepresentation = new UserRepresentation();
