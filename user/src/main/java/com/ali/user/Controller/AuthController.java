@@ -243,4 +243,7 @@ public class AuthController {
         boolean hasSession = loginservice.hasActiveSession(username);
         return ResponseEntity.ok(hasSession);
     }
+
+
+
 }
