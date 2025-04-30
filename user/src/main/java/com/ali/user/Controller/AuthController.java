@@ -22,17 +22,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin(
-        origins = "*",
-        allowedHeaders = "*"
-)
+@CrossOrigin("http://localhost:4200")
 @AllArgsConstructor
 @Slf4j
 public class AuthController {
     @Autowired
     AuthService loginservice;
 
-//    private UsersProducer usersProducer;
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
 
@@ -74,7 +70,7 @@ public class AuthController {
         return "User added successfully! Please check your email for verification.";
     }
 
-    // Envoyer un email de vérification après l'inscription
+
     @PostMapping("/users/{userId}/send-verification-email")
     public ResponseEntity<?> sendVerificationEmail(@PathVariable String userId) {
         try {

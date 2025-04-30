@@ -1,5 +1,5 @@
 package com.ali.user.Model;
 
-public enum Sex {
+public enum Sexe {
     MALE,FEMALE
 }
