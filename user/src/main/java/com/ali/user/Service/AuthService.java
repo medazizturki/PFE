@@ -166,16 +166,35 @@ public class AuthService {
         userRepresentation.setLastName(user.getLastName());
         userRepresentation.setEmail(user.getEmail());
 
-        Map<String, List<String>> updatedAttributes = new HashMap<>();
-        updatedAttributes.put("image", Collections.singletonList(user.getImage()));
-        updatedAttributes.put("adresse", Collections.singletonList(user.getAdresse()));
-        updatedAttributes.put("sexe", Collections.singletonList(user.getSexe().toString()));
-        updatedAttributes.put("phone", Collections.singletonList(String.valueOf(user.getPhone())));
-        updatedAttributes.put("verified", Collections.singletonList(String.valueOf(user.getVerified())));
-        userRepresentation.setAttributes(updatedAttributes);
+        // Get existing attributes to preserve them
+        Map<String, List<String>> existingAttributes = userRepresentation.getAttributes();
+        if (existingAttributes == null) {
+            existingAttributes = new HashMap<>();
+        }
+
+        // Update only the attributes that are provided in the update request
+        if (user.getImage() != null) {
+            existingAttributes.put("image", Collections.singletonList(user.getImage()));
+        }
+        if (user.getAdresse() != null) {
+            existingAttributes.put("adresse", Collections.singletonList(user.getAdresse()));
+        }
+        if (user.getSexe() != null) {
+            existingAttributes.put("sexe", Collections.singletonList(user.getSexe().toString()));
+        }
+        if (user.getPhone() != 0) { // Assuming 0 is the default value for phone
+            existingAttributes.put("phone", Collections.singletonList(String.valueOf(user.getPhone())));
+        }
+        existingAttributes.put("verified", Collections.singletonList(String.valueOf(user.getVerified())));
+
+        // Set the merged attributes back to the user representation
+        userRepresentation.setAttributes(existingAttributes);
+
+        // Update the user
         userResource.update(userRepresentation);
         System.out.println("User updated successfully");
     }
+
 
     public void updateUserRole(String userId, String role) {
         UsersResource usersResource = KeycloakConfig.getUsersResource();

@@ -109,13 +109,31 @@ public class FaceRecognitionController {
                 logger.info("Successful match with user {} (similarity: {})",
                         bestMatch.getUsername(), highestSimilarity);
                 String token = authService.generateTokenForFaceAuth(bestMatch.getUsername());
-                return ResponseEntity.ok(Map.of(
-                        "success", true,
-                        "token", token,
-                        "username", bestMatch.getUsername(),
-                        "similarity", highestSimilarity
-                ));
-            } else {
+
+                // Retrieve custom attributes
+                String phone = getAttributeValue(bestMatch.getAttributes(), "phone");
+                String sexe = getAttributeValue(bestMatch.getAttributes(), "sexe");
+                String adresse = getAttributeValue(bestMatch.getAttributes(), "adresse");
+                String image = getAttributeValue(bestMatch.getAttributes(), "image");
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("token", token);
+                response.put("id", bestMatch.getId());
+                response.put("username", bestMatch.getUsername());
+                response.put("firstName", bestMatch.getFirstName());
+                response.put("lastName", bestMatch.getLastName());
+                response.put("email", bestMatch.getEmail());
+                response.put("phone", phone);
+                response.put("image", image);
+                response.put("sexe", sexe);
+                response.put("adresse", adresse);
+                response.put("similarity", highestSimilarity);
+
+                return ResponseEntity.ok(response);
+
+            }
+             else {
                 logger.warn("No match found (best similarity: {}, threshold: {})",
                         highestSimilarity, SIMILARITY_THRESHOLD);
                 return ResponseEntity.status(401).body(Map.of(
