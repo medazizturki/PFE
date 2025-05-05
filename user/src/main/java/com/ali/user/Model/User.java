@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,7 +21,8 @@ public class User {
     private Sexe sexe;
     private Integer phone;
     private Boolean verified;
-    private String faceData; // Add this field for face recognition
+    private String faceData;
+    private List<String> roles; // Added roles field
 
     @Override
     public String toString() {
@@ -29,13 +31,14 @@ public class User {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
+                ", password='[PROTECTED]'" + // Mask password in logs
                 ", image='" + image + '\'' +
                 ", adresse='" + adresse + '\'' +
                 ", sexe=" + sexe +
                 ", phone=" + phone +
                 ", verified=" + verified +
                 ", faceData='" + (faceData != null ? "[face data present]" : "null") + '\'' +
+                ", roles=" + roles +
                 '}';
     }
 }

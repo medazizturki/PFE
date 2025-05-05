@@ -49,32 +49,38 @@ public class AuthController {
         }
     }
 
-
     @PostMapping("/signup")
-    public String signup(@RequestBody User user) {
-        logger.info("New user signup: username={}, email={}", user.getUserName(), user.getEmail());
-        loginservice.signup(user);
+    public ResponseEntity<Map<String, String>> signup(@RequestBody User user) {
+        try {
+            logger.info("New user signup: username={}, email={}", user.getUserName(), user.getEmail());
+            loginservice.signup(user);
 
-        // 🔹 Rechercher l'utilisateur nouvellement créé
-        List<UserRepresentation> representationList = KeycloakConfig.getUsersResource().search(user.getUserName(), true);
+            // 🔹 Rechercher l'utilisateur nouvellement créé
+            List<UserRepresentation> representationList = KeycloakConfig.getUsersResource().search(user.getUserName(), true);
 
-        if (!representationList.isEmpty()) {
-            UserRepresentation userRepresentation = representationList.get(0);
+            if (!representationList.isEmpty()) {
+                UserRepresentation userRepresentation = representationList.get(0);
 
-            if (Boolean.FALSE.equals(userRepresentation.isEmailVerified())) {
-                // 🔹 Envoyer l'email de vérification
-                loginservice.sendVerificationEmail(userRepresentation.getId());
+                if (Boolean.FALSE.equals(userRepresentation.isEmailVerified())) {
+                    // 🔹 Envoyer l'email de vérification
+                    loginservice.sendVerificationEmail(userRepresentation.getId());
+                }
             }
-        }
 
-        return "User added successfully! Please check your email for verification.";
+            return ResponseEntity.ok(Map.of("message", "Utilisateur ajouté avec succès. Veuillez vérifier votre email pour la vérification."));
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Échec lors de l'ajout de l'utilisateur"));
+        }
     }
 
 
     @PostMapping("/users/{userId}/send-verification-email")
     public ResponseEntity<?> sendVerificationEmail(@PathVariable String userId) {
         try {
-            loginservice.sendVerificationEmail(userId);
+            loginservice.sendVerificationEmail(userId); 
             return ResponseEntity.ok("Verification email sent successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send verification email.");

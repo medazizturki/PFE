@@ -4,12 +4,15 @@ import com.ali.user.Config.Credentials;
 import com.ali.user.Config.KeycloakConfig;
 import com.ali.user.Model.LoginRequest;
 import com.ali.user.Model.LoginResponse;
+import com.ali.user.Model.Sexe;
 import com.ali.user.Model.User;
+import com.ali.user.utils.KeycloakRoleUtils;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.AccessTokenResponse;
@@ -30,22 +33,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 
 @Service
 @PropertySource("classpath:application.yaml")
 public class AuthService {
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
-    private static final String FACE_AUTH_PASSWORD = "face-auth-secret-password";
+    private static final String FACE_AUTH_PASSWORD = "admin";
 
 
     @Autowired
-    AuthService(RestTemplate restTemplate, ObjectMapper objectMapper) {
+    AuthService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
     }
 
     @Value("${spring.security.oauth2.client.registration.ouath2-client-credentials.client-id}")
@@ -96,42 +95,77 @@ public class AuthService {
         }
     }
 
-
     public void signup(User user) {
-        // Use the FACE_AUTH_PASSWORD for all new users if you want them to support face auth
-        CredentialRepresentation credential = Credentials.createPasswordCredentials(user.getPassword());
-        UserRepresentation userRepresentation = new UserRepresentation();
-        userRepresentation.setUsername(user.getUserName());
-        userRepresentation.setFirstName(user.getFirstName());
-        userRepresentation.setLastName(user.getLastName());
-        userRepresentation.setEmail(user.getEmail());
-        userRepresentation.setEmailVerified(false);
-        userRepresentation.setCredentials(Collections.singletonList(credential));
-        userRepresentation.setEnabled(true);
+        // Create user representation
+        UserRepresentation userRep = KeycloakRoleUtils.toKeycloakRepresentation(user);
 
+        // Set credentials
+        CredentialRepresentation credential = Credentials.createPasswordCredentials(user.getPassword());
+        userRep.setCredentials(Collections.singletonList(credential));
+
+        // Set attributes
         Map<String, List<String>> attributes = new HashMap<>();
         attributes.put("image", Collections.singletonList(user.getImage()));
         attributes.put("adresse", Collections.singletonList(user.getAdresse()));
         attributes.put("sexe", Collections.singletonList(user.getSexe().toString()));
         attributes.put("phone", Collections.singletonList(String.valueOf(user.getPhone())));
         attributes.put("verified", Collections.singletonList(String.valueOf(user.getVerified())));
+        userRep.setAttributes(attributes);
 
-        userRepresentation.setAttributes(attributes);
-
+        // Create user
         UsersResource usersResource = KeycloakConfig.getUsersResource();
-        Response response = usersResource.create(userRepresentation);
+        Response response = usersResource.create(userRep);
 
         if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
-            System.out.println("User added successfully");
             String userId = CreatedResponseUtil.getCreatedId(response);
-            System.out.println("User ID: " + userId);
+
+            // Assign default 'user' role
+            RealmResource realmResource = KeycloakConfig.getKeycloakInstance().realm("GestionUser");
+            KeycloakRoleUtils.assignRealmRoles(userId, Collections.singletonList("user"), realmResource);
+
             sendVerificationEmail(userId);
         } else {
-            System.out.println("Failed to add user. Status: " + response.getStatus());
+            throw new RuntimeException("Failed to create user: " + response.getStatusInfo());
         }
-
         response.close();
     }
+
+//
+//    public void signup(User user) {
+//        // Use the FACE_AUTH_PASSWORD for all new users if you want them to support face auth
+//        CredentialRepresentation credential = Credentials.createPasswordCredentials(user.getPassword());
+//        UserRepresentation userRepresentation = new UserRepresentation();
+//        userRepresentation.setUsername(user.getUserName());
+//        userRepresentation.setFirstName(user.getFirstName());
+//        userRepresentation.setLastName(user.getLastName());
+//        userRepresentation.setEmail(user.getEmail());
+//        userRepresentation.setEmailVerified(false);
+//        userRepresentation.setCredentials(Collections.singletonList(credential));
+//        userRepresentation.setEnabled(true);
+//
+//        Map<String, List<String>> attributes = new HashMap<>();
+//        attributes.put("image", Collections.singletonList(user.getImage()));
+//        attributes.put("adresse", Collections.singletonList(user.getAdresse()));
+//        attributes.put("sexe", Collections.singletonList(user.getSexe().toString()));
+//        attributes.put("phone", Collections.singletonList(String.valueOf(user.getPhone())));
+//        attributes.put("verified", Collections.singletonList(String.valueOf(user.getVerified())));
+//
+//        userRepresentation.setAttributes(attributes);
+//
+//        UsersResource usersResource = KeycloakConfig.getUsersResource();
+//        Response response = usersResource.create(userRepresentation);
+//
+//        if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
+//            System.out.println("User added successfully");
+//            String userId = CreatedResponseUtil.getCreatedId(response);
+//            System.out.println("User ID: " + userId);
+//            sendVerificationEmail(userId);
+//        } else {
+//            System.out.println("Failed to add user. Status: " + response.getStatus());
+//        }
+//
+//        response.close();
+//    }
 
 
     public void sendVerificationEmail(String userId) {
@@ -531,4 +565,70 @@ public class AuthService {
 
 
 
+
+    // Add to AuthService
+    public User getUserWithRoles(String username) {
+        RealmResource realmResource = KeycloakConfig.getKeycloakInstance().realm("GestionUser");
+        List<UserRepresentation> users = realmResource.users().search(username, true);
+
+        if (users.isEmpty()) {
+            return null;
+        }
+
+        UserRepresentation userRep = users.get(0);
+        List<String> roles = KeycloakRoleUtils.getUserRoles(userRep.getId(), realmResource);
+
+        User user = new User();
+        user.setUserName(userRep.getUsername());
+        user.setFirstName(userRep.getFirstName());
+        user.setLastName(userRep.getLastName());
+        user.setEmail(userRep.getEmail());
+        user.setRoles(roles);
+
+        // Set other fields from attributes
+        Map<String, List<String>> attributes = userRep.getAttributes();
+        if (attributes != null) {
+            user.setImage(getFirstAttribute(attributes, "image"));
+            user.setAdresse(getFirstAttribute(attributes, "adresse"));
+            user.setSexe(attributes.containsKey("sexe") ?
+                    Sexe.valueOf(getFirstAttribute(attributes, "sexe")) : null);
+            user.setPhone(attributes.containsKey("phone") ?
+                    Integer.parseInt(getFirstAttribute(attributes, "phone")) : null);
+            user.setVerified(attributes.containsKey("verified") ?
+                    Boolean.parseBoolean(getFirstAttribute(attributes, "verified")) : false);
+        }
+
+        return user;
+    }
+
+    private String getFirstAttribute(Map<String, List<String>> attributes, String key) {
+        return attributes.getOrDefault(key, Collections.emptyList())
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void updateUserRoles(String userId, List<String> newRoles) {
+        RealmResource realmResource = KeycloakConfig.getKeycloakInstance().realm("GestionUser");
+
+        // Get current roles
+        List<String> currentRoles = KeycloakRoleUtils.getUserRoles(userId, realmResource);
+
+        // Determine roles to add and remove
+        List<String> rolesToAdd = newRoles.stream()
+                .filter(role -> !currentRoles.contains(role))
+                .collect(Collectors.toList());
+
+        List<String> rolesToRemove = currentRoles.stream()
+                .filter(role -> !newRoles.contains(role))
+                .collect(Collectors.toList());
+
+        // Update roles
+        if (!rolesToAdd.isEmpty()) {
+            KeycloakRoleUtils.assignRealmRoles(userId, rolesToAdd, realmResource);
+        }
+        if (!rolesToRemove.isEmpty()) {
+            KeycloakRoleUtils.removeRealmRoles(userId, rolesToRemove, realmResource);
+        }
+    }
 }

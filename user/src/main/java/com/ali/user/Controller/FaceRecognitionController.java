@@ -23,7 +23,7 @@ import java.util.*;
 public class FaceRecognitionController {
 
     private static final Logger logger = LoggerFactory.getLogger(FaceRecognitionController.class);
-    private static final double SIMILARITY_THRESHOLD = 0.85; // Adjusted to typical face recognition threshold
+    private static final double SIMILARITY_THRESHOLD = 0.95; // Adjusted to typical face recognition threshold
     private static final int MIN_DESCRIPTOR_SIZE = 10;
 
     @Autowired
