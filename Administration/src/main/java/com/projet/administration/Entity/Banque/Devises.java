@@ -1,0 +1,41 @@
+package com.projet.administration.Entity.Banque;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.projet.administration.Entity.GestionReferentiels.Groupes;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+public class Devises {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String code;
+    private String libelléfr;
+    private String libelléCfr;
+    private String libelléar;
+    private String libelléCar;
+    private String libelléen;
+    private String libelléCen;
+
+
+    @OneToMany(mappedBy = "devises", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TauxCharge> tauxCharges;
+
+    @OneToMany(mappedBy = "devises", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Groupes> groupes;
+}

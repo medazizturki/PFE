@@ -20,16 +20,28 @@
         </processorPath>
         <module name="user" />
       </profile>
+      <profile name="Annotation profile for Administration" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="Administration" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Equipe" target="17" />
+      <module name="GestionAdministration" target="17" />
       <module name="school" target="17" />
       <module name="Student" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Administration" options="-parameters" />
       <module name="Equipe" options="-parameters" />
+      <module name="GestionAdministration" options="-parameters" />
       <module name="Student" options="-parameters" />
       <module name="config-server" options="-parameters" />
       <module name="discovery" options="-parameters" />
