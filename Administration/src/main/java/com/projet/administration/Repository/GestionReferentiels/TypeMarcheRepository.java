@@ -1,9 +1,9 @@
 package com.projet.administration.Repository.GestionReferentiels;
 
-import com.projet.administration.Entity.GestionReferentiels.Groupes;
+import com.projet.administration.Entity.GestionReferentiels.TypeMarche;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GroupeRepository extends JpaRepository<Groupes, Long> {
+public interface TypeMarcheRepository extends JpaRepository<TypeMarche, Long> {
 }

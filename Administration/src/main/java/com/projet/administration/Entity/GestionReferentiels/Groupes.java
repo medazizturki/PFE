@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 @Getter
@@ -35,6 +37,10 @@ public class Groupes {
     private ModeCotation modeCotation;
     private String description;
 
+
+    @OneToMany(mappedBy = "groupes")
+    @JsonIgnore
+    private List<NatureReferentiels> natureReferentielsList;
 
     public enum ModeCotation {
         Continu,
