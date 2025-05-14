@@ -2,6 +2,7 @@ package com.projet.administration.Entity.Banque;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +25,8 @@ public class TauxCharge {
 
 
     @ManyToOne
-    @JsonIgnore
+    @JoinColumn(name = "devises_id")
+    @JsonIgnoreProperties("tauxCharges")
     private Devises devises;
 
     private Date date;

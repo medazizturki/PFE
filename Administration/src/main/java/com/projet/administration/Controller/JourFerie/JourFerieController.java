@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/JourFerie")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class JourFerieController {
 
     private final JourFerieService jourFerieService;

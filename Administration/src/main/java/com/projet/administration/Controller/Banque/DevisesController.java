@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/devises")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class DevisesController {
 
     protected final DeviseService deviseService;

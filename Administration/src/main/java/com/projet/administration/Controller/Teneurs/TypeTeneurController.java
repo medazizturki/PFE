@@ -14,12 +14,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/typeteneur")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class TypeTeneurController {
 
 
     private final TypeTeneurService typeTeneurService;
 
-    @Operation(summary = "Get all TypeTeneurs", description = "Returns a list of all TypeTeneur entities")
+    @Operation(summary = "Get all TypeTeneurs", description = "Returns a list of all TypeTeneur")
     @GetMapping("/all")
     public ResponseEntity<List<TypeTeneur>> getAllTypeTeneur() {
         return ResponseEntity.ok(typeTeneurService.getAllTypeTeneur());

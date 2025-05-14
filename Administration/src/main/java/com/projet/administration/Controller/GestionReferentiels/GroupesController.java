@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/groupes")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class GroupesController {
 
     private final GroupesService groupesService;

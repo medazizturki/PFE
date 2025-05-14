@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/compteteneur")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class CompteTeneurController {
 
     private final CompteTeneurService compteTeneurService;

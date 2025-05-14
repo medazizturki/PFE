@@ -1,5 +1,6 @@
 package com.projet.administration.Entity.Teneur;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,8 +19,10 @@ public class TypeTeneur {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String code;
-    private String libellé;
+    private String libelle;
 
-    @OneToMany(mappedBy = "typeTeneur", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "typeTeneur", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("typeTeneur")
     private List<CompteTeneur> comptes;
+
 }

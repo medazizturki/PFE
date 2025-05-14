@@ -20,14 +20,25 @@
         </processorPath>
         <module name="user" />
       </profile>
-      <profile name="Annotation profile for Administration" enabled="true">
+      <profile name="Annotation profile for Electronique" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="Administration" />
+        <module name="Electronique" />
+      </profile>
+      <profile name="Annotation profile for HorsElectronique" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
-        <module name="Administration" />
+        <module name="HorsElectronique" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -40,8 +51,10 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Administration" options="-parameters" />
+      <module name="Electronique" options="-parameters" />
       <module name="Equipe" options="-parameters" />
       <module name="GestionAdministration" options="-parameters" />
+      <module name="HorsElectronique" options="-parameters" />
       <module name="Student" options="-parameters" />
       <module name="config-server" options="-parameters" />
       <module name="discovery" options="-parameters" />

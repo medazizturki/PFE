@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/typemarche")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class TypeMarcheController {
 
     private final TypeMarcheService typeMarcheService;

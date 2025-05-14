@@ -1,6 +1,7 @@
 package com.projet.administration.Entity.Teneur;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,10 +20,10 @@ public class CompteTeneur {
 
     private Long id;
     private String code;
-    private String libellé;
-
+    private String libelle;
 
     @ManyToOne
-    @JsonIgnore
+    @JsonIgnoreProperties("comptes") // ignore la liste pour éviter récursion inverse
     private TypeTeneur typeTeneur;
+
 }

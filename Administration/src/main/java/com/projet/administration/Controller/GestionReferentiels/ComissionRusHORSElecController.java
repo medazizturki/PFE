@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/rushorselec")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class ComissionRusHORSElecController {
 
     private final ComissionRusHORSElecService comissionRusHORSElecService;

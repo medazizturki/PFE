@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/naturereferentiels")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class NatureReferentielsController {
 
     private final NatureReferentielsService natureReferentielsService;
