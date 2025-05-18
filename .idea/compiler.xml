@@ -28,10 +28,9 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
-        <module name="Administration" />
         <module name="Electronique" />
       </profile>
-      <profile name="Annotation profile for HorsElectronique" enabled="true">
+      <profile name="Annotation profile for Administration" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -39,6 +38,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="HorsElectronique" />
+        <module name="Administration" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

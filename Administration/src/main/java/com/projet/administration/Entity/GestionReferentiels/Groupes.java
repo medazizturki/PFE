@@ -1,9 +1,6 @@
 package com.projet.administration.Entity.GestionReferentiels;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.projet.administration.Entity.Banque.Devises;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,7 +10,6 @@ import lombok.Setter;
 
 import java.util.List;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 @Getter
 @Setter
@@ -31,15 +27,15 @@ public class Groupes {
     private Categories Categorie;
     private String unitecotation;
     @ManyToOne
-    @JsonBackReference
+    @JsonIgnoreProperties("groupes")
     private Devises devises;
     @Enumerated(EnumType.STRING)
     private ModeCotation modeCotation;
     private String description;
 
 
-    @OneToMany(mappedBy = "groupes")
-    @JsonIgnore
+    @OneToMany(mappedBy = "groupes", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("groupes")
     private List<NatureReferentiels> natureReferentielsList;
 
     public enum ModeCotation {

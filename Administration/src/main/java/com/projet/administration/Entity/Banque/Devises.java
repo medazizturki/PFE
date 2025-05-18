@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.projet.administration.Entity.GestionReferentiels.Groupes;
+import com.projet.administration.Entity.Teneur.CompteTeneur;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,6 +38,8 @@ public class Devises {
     private List<TauxCharge> tauxCharges;
 
     @OneToMany(mappedBy = "devises", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnoreProperties("devises")
     private List<Groupes> groupes;
+
+
 }
