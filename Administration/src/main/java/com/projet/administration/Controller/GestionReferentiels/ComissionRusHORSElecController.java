@@ -109,15 +109,17 @@ public class ComissionRusHORSElecController {
 
 
         // 2.c) Titre centré
+
         Paragraph titlePara = new Paragraph("Liste des Commissions Rus HORS Electronique",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16)
         );
         titlePara.setAlignment(Paragraph.ALIGN_CENTER);
+        titlePara.setSpacingBefore(20);
         titlePara.setSpacingAfter(20);
         document.add(titlePara);
 
         // 2.d) Tableau (Titre | Type | Rate | Minimum | Maximum)
-        PdfPTable table = new PdfPTable(new float[]{4, 3, 2, 2, 2});
+        PdfPTable table = new PdfPTable(new float[]{5, 4, 3, 3, 3});
         table.setWidthPercentage(100);
 
         Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE);

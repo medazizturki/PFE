@@ -1,15 +1,21 @@
 package com.projet.administration.Controller.GestionReferentiels;
 
-import com.projet.administration.Entity.GestionReferentiels.NatureReferentiels;
-import com.projet.administration.Service.GestionReferentiels.NatureReferentielsService;
+import com.projet.administration.Entity.GestionReferentiels.Intermediaire;
+import com.projet.administration.Service.GestionReferentiels.IntermediaireService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.PdfPTable;
@@ -29,49 +35,51 @@ import com.lowagie.text.Font;
 import com.lowagie.text.Image;
 import com.lowagie.text.pdf.ColumnText;
 
-
 @RestController
-@RequestMapping("/naturereferentiels")
+@RequestMapping("intermediaire")
 @RequiredArgsConstructor
 @CrossOrigin("http://localhost:4200")
-public class NatureReferentielsController {
+public class IntermediaireController {
 
-    private final NatureReferentielsService natureReferentielsService;
 
-    @Operation(summary = "Get all NatureReferentiels", description = "Returns a list of all NatureReferentiels entities")
+    private final IntermediaireService IntermediaireService;
+
+    @Operation(summary = "Get all Intermediaire")
     @GetMapping("/all")
-    public ResponseEntity<List<NatureReferentiels>> getAllNatureReferentiels() {
-        return ResponseEntity.ok(natureReferentielsService.getAllNatureReferentiels());
+    public ResponseEntity<List<Intermediaire>> getAllIntermediaire() {
+        return ResponseEntity.ok(IntermediaireService.getAllIntermediaire());
     }
 
-    @Operation(summary = "add NatureReferentiels")
-    @PostMapping("/add")
-    public ResponseEntity<NatureReferentiels> addNatureReferentiels(@RequestBody NatureReferentiels naturereferentiels) {
-        NatureReferentiels createdNatureReferentiels = natureReferentielsService.addNatureReferentiels(naturereferentiels);
-        return new ResponseEntity<>(createdNatureReferentiels, HttpStatus.CREATED);
+    @Operation(summary = "Add a Groupe")
+    @PostMapping("/add")    // ← no consumes/produces here
+    public ResponseEntity<Intermediaire> addIntermediaire(@RequestBody Intermediaire Intermediaire) {
+        Intermediaire created = IntermediaireService.addIntermediaire(Intermediaire);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
-
-    @Operation(summary = "update NatureReferentiels")
-    @PutMapping("/update/{id}")
-    public ResponseEntity<NatureReferentiels> updateNatureReferentiels(@PathVariable Long id, @RequestBody NatureReferentiels naturereferentiels) {
-        NatureReferentiels updatedNatureReferentiels = natureReferentielsService.updateNatureReferentielsWithId(id, naturereferentiels);
-        return updatedNatureReferentiels != null ? ResponseEntity.ok(updatedNatureReferentiels) : ResponseEntity.notFound().build();
+    @Operation(summary = "Update a Groupe")
+    @PutMapping("/update/{id}")  // ← no consumes/produces here
+    public ResponseEntity<Intermediaire> updateIntermediaire(
+            @PathVariable Long id,
+            @RequestBody Intermediaire Intermediaire
+    ) {
+        Intermediaire updated = IntermediaireService.updateIntermediaireWithId(id, Intermediaire);
+        return updated != null
+                ? ResponseEntity.ok(updated)
+                : ResponseEntity.notFound().build();
     }
 
-    @Operation(summary = "Delete NatureReferentiels")
-    @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> deleteNatureReferentiels(@PathVariable (value = "id") Long id) {
-
-        return new ResponseEntity<>(natureReferentielsService.deleteNatureReferentiels(id), HttpStatus.OK);
-
+    @Operation(summary = "Delete a Groupe")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteIntermediaire(@PathVariable Long id) {
+        return new ResponseEntity<>(IntermediaireService.deleteIntermediaire(id), HttpStatus.OK);
     }
 
-    @Operation(summary = "Exporter la liste des NatureReferentiels au format PDF")
+    @Operation(summary = "Exporter la liste des Intermédiaires au format PDF (avec dates séparées)")
     @GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public void exportPdf(HttpServletResponse response) throws Exception {
         // 1) Récupérer les données
-        List<NatureReferentiels> list = natureReferentielsService.getAllNatureReferentiels();
+        List<Intermediaire> list = IntermediaireService.getAllIntermediaire();
 
         // 2) Générer le PDF en mémoire, A4 paysage
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -79,7 +87,7 @@ public class NatureReferentielsController {
         PdfWriter writer = PdfWriter.getInstance(document, baos);
         document.open();
 
-        // 2.a) Logo (ajustez le chemin si besoin)
+        // 2.a) Logo
         String logoPath = "C:\\Users\\Mon Pc\\Desktop\\PfeFront\\front\\src\\assets\\uploads-images\\aaaa.jpeg";
         Image logo = Image.getInstance(logoPath);
         logo.scaleAbsolute(50, 50);
@@ -103,29 +111,32 @@ public class NatureReferentielsController {
         );
 
         // 2.c) Titre centré
-        Paragraph title = new Paragraph("Liste des Nature Référentiels",
+        Paragraph title = new Paragraph("Liste des Intermédiaires",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16)
         );
         title.setAlignment(Paragraph.ALIGN_CENTER);
         title.setSpacingAfter(20);
         document.add(title);
 
-        // 2.d) Tableau : 7 colonnes, mêmes largeurs
-        int columnCount = 7;
+        // 2.d) Tableau : 9 colonnes, mêmes largeurs
+        int columnCount = 9;
         float[] widths = new float[columnCount];
         Arrays.fill(widths, 1f);
         PdfPTable table = new PdfPTable(widths);
         table.setWidthPercentage(100);
 
+        // en-têtes
         Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE);
         String[] headers = {
-                "Code BVMT",
-                "Libellé",
-                "Groupe",
+                "Code",
                 "Libellé FR",
-                "Libellé AR",
-                "Libellé EN",
-                "Description"
+                "Symbole FR",
+                "Adresse",
+                "Téléphone",
+                "Compte bancaire",
+                "Banque",
+                "Date Début",
+                "Date Fin"
         };
         for (String h : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(h, headFont));
@@ -134,18 +145,29 @@ public class NatureReferentielsController {
             table.addCell(cell);
         }
 
+        // cellules
         Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
-        for (NatureReferentiels n : list) {
-            table.addCell(new PdfPCell(new Phrase(n.getCodeBvmt(), cellFont)));
-            table.addCell(new PdfPCell(new Phrase(n.getLibelle(), cellFont)));
-            // Affichez ici ce que vous souhaitez du 'groupes' (par ex. son code)
-            table.addCell(new PdfPCell(new Phrase(
-                    n.getGroupes() != null ? n.getGroupes().getCode() : "-", cellFont)));
-            table.addCell(new PdfPCell(new Phrase(n.getLibellefr(), cellFont)));
-            table.addCell(new PdfPCell(new Phrase(n.getLibellear(), cellFont)));
-            table.addCell(new PdfPCell(new Phrase(n.getLibelleen(), cellFont)));
-            table.addCell(new PdfPCell(new Phrase(
-                    n.getDescription() != null ? n.getDescription() : "-", cellFont)));
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        for (Intermediaire i : list) {
+            table.addCell(new PdfPCell(new Phrase(i.getCode(), cellFont)));
+            table.addCell(new PdfPCell(new Phrase(i.getLibellefr(), cellFont)));
+            table.addCell(new PdfPCell(new Phrase(i.getSymbolefrancais(), cellFont)));
+            table.addCell(new PdfPCell(new Phrase(i.getAdresse(), cellFont)));
+            table.addCell(new PdfPCell(new Phrase(i.getTelephone(), cellFont)));
+            table.addCell(new PdfPCell(new Phrase(i.getComptebanquaire(), cellFont)));
+            table.addCell(new PdfPCell(new Phrase(i.getBanque(), cellFont)));
+
+            // Date Début
+            String debut = i.getDateDebut() != null
+                    ? dtf.format(i.getDateDebut().toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+                    : "-";
+            table.addCell(new PdfPCell(new Phrase(debut, cellFont)));
+
+            // Date Fin
+            String fin = i.getDateFin() != null
+                    ? dtf.format(i.getDateFin().toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+                    : "-";
+            table.addCell(new PdfPCell(new Phrase(fin, cellFont)));
         }
 
         document.add(table);
@@ -154,10 +176,10 @@ public class NatureReferentielsController {
         // 3) Nom de fichier
         String safeTs = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss"));
-        String fileName = "naturereferentiels-" + safeTs + ".pdf";
+        String fileName = "intermediaires-" + safeTs + ".pdf";
 
-        // 4) Sauvegarde locale (si souhaité)
-        String archiveDir = "C:\\Users\\Mon Pc\\Desktop\\PfeFront\\front\\GenerationPDF\\NatureReferentiels";
+        // 4) Sauvegarde locale (optionnelle)
+        String archiveDir = "C:\\Users\\Mon Pc\\Desktop\\PfeFront\\front\\GenerationPDF\\Intermediaire";
         File dir = new File(archiveDir);
         if (!dir.exists() && !dir.mkdirs()) {
             throw new IOException("Impossible de créer le dossier : " + archiveDir);
@@ -173,5 +195,6 @@ public class NatureReferentielsController {
         IOUtils.copy(new ByteArrayInputStream(baos.toByteArray()), response.getOutputStream());
         response.flushBuffer();
     }
+
 
 }

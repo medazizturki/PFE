@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.PdfPTable;
@@ -108,8 +109,11 @@ public class IndiceSectorielController {
         titlePara.setSpacingAfter(20);
         document.add(titlePara);
 
-        // 2.d) Tableau
-        PdfPTable table = new PdfPTable(new float[]{3, 3, 4, 3, 3, 3, 3, 5});
+        // 2.d) Tableau : 8 colonnes, mêmes largeurs
+        int columnCount = 8;
+        float[] widths = new float[columnCount];
+        Arrays.fill(widths, 1f);
+        PdfPTable table = new PdfPTable(widths);
         table.setWidthPercentage(100);
 
         Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE);

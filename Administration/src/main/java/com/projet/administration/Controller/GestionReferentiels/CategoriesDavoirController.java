@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 import java.awt.*;
 
@@ -66,6 +67,10 @@ public class CategoriesDavoirController {
         return new ResponseEntity<>(categoriesDavoirService.deleteCategoriesDavoir(id), HttpStatus.OK);
 
     }
+
+
+
+
     @Operation(summary = "Exporter la liste des CategoriesDavoir au format PDF")
     @GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public void exportPdf(HttpServletResponse response) throws Exception {
@@ -83,11 +88,9 @@ public class CategoriesDavoirController {
         Image logo = Image.getInstance(logoPath);
         logo.scaleAbsolute(50, 50);
         float pageHeight = document.getPageSize().getHeight();
-        // Remonter le logo : 50pt sous le bord supérieur
-        logo.setAbsolutePosition(36, pageHeight - 70);
+        logo.setAbsolutePosition(15, pageHeight - 70);
         document.add(logo);
 
-        // 2.b) Date alignée à droite, position fixe à 40pt sous le bord supérieur
         String dateStr = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         Phrase datePhrase = new Phrase("Généré le : " + dateStr,
@@ -102,7 +105,6 @@ public class CategoriesDavoirController {
                 0
         );
 
-        // 2.c) Titre centré
         Paragraph titlePara = new Paragraph("Liste des Catégories d'Avoir",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16)
         );
@@ -110,16 +112,17 @@ public class CategoriesDavoirController {
         titlePara.setSpacingAfter(20);
         document.add(titlePara);
 
-        // 2.d) Tableau (14 colonnes) – décalé vers le bas
-        PdfPTable table = new PdfPTable(new float[]{2,2,2,2,3,3,3,3,3,3,2,2,2,2});
+        int columnCount = 10;
+        float[] widths = new float[columnCount];
+        Arrays.fill(widths, 1f);
+        PdfPTable table = new PdfPTable(widths);
         table.setWidthPercentage(100);
 
         Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE);
         String[] headers = {
-                "Code BVMT","Code NSC","Code Optique","Code Tc",
-                "Libellé FR","Courte FR","Libellé AR","Courte AR",
-                "Libellé EN","Courte EN",
-                "Taux red. CTB","Taux red. RUS","Taux red. CEB_ENR","Taux red. RUS_ENR"
+                "Code BVMT", "Code NSC", "Code Optique", "Code Tc",
+                "Libellé FR","Libellé Courte FR",
+                "Taux CTB","Taux RUS","Taux CEB_ENR","Taux RUS_ENR"
         };
         for (String h : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(h, headFont));
@@ -127,6 +130,7 @@ public class CategoriesDavoirController {
             cell.setPadding(4);
             table.addCell(cell);
         }
+
         Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 9);
         for (CategoriesDavoir c : list) {
             table.addCell(new PdfPCell(new Phrase(c.getCodeBVMT(), cellFont)));
@@ -135,10 +139,6 @@ public class CategoriesDavoirController {
             table.addCell(new PdfPCell(new Phrase(c.getCodeTc(), cellFont)));
             table.addCell(new PdfPCell(new Phrase(c.getLibellefr(), cellFont)));
             table.addCell(new PdfPCell(new Phrase(c.getLibellecourtefr(), cellFont)));
-            table.addCell(new PdfPCell(new Phrase(c.getLibellear(), cellFont)));
-            table.addCell(new PdfPCell(new Phrase(c.getLibellecourtear(), cellFont)));
-            table.addCell(new PdfPCell(new Phrase(c.getLibelleen(), cellFont)));
-            table.addCell(new PdfPCell(new Phrase(c.getLibellecourteen(), cellFont)));
             table.addCell(new PdfPCell(new Phrase(String.valueOf(c.getTauxreductionCTB()), cellFont)));
             table.addCell(new PdfPCell(new Phrase(String.valueOf(c.getTauxreductionRUS()), cellFont)));
             table.addCell(new PdfPCell(new Phrase(String.valueOf(c.getTauxreductionCEB_ENR()), cellFont)));
@@ -147,12 +147,10 @@ public class CategoriesDavoirController {
         document.add(table);
         document.close();
 
-        // 3) Nom de fichier safe
         String ts = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss"));
         String fileName = "categories-davoir-" + ts + ".pdf";
 
-        // 4) Sauvegarder sur disque
         String archiveDir = "C:\\Users\\Mon Pc\\Desktop\\PfeFront\\front\\GenerationPDF\\Categorie d'Avoir";
         File dir = new File(archiveDir);
         if (!dir.exists() && !dir.mkdirs()) {
@@ -162,7 +160,6 @@ public class CategoriesDavoirController {
             baos.writeTo(fos);
         }
 
-        // 5) Envoyer au client
         response.setContentType(MediaType.APPLICATION_PDF_VALUE);
         response.setHeader("Content-Disposition","attachment; filename=\"" + fileName + "\"");
         response.setContentLength(baos.size());

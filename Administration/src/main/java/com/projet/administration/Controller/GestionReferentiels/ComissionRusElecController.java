@@ -78,7 +78,7 @@ public class ComissionRusElecController {
 
         // 2) Générer le PDF en mémoire, A4 portrait
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Document document = new Document(PageSize.A4, 36, 36, 54, 36);
+        Document document = new Document(PageSize.A4.rotate(), 36, 36, 54, 36);
         PdfWriter writer = PdfWriter.getInstance(document, baos);
         document.open();
 

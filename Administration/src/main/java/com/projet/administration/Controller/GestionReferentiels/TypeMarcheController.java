@@ -117,11 +117,11 @@ public class TypeMarcheController {
         document.add(titlePara);
 
         // 2.d) Tableau (Code BVMT | SuperType | Libellé FR | Libellé AR | Libellé EN)
-        PdfPTable table = new PdfPTable(new float[]{2, 3, 3, 3, 3});
+        PdfPTable table = new PdfPTable(new float[]{3, 3, 3, 3, 3});
         table.setWidthPercentage(100);
 
         Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE);
-        String[] headers = { "Code BVMT", "SuperType", "Libellé FR", "Libellé AR", "Libellé EN" };
+        String[] headers = { "Code ", "Super Type", "Libellé FR", "Libellé AR", "Libellé EN" };
         for (String h : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(h, headFont));
             cell.setBackgroundColor(new Color(41, 128, 185));
